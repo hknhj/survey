@@ -6,6 +6,7 @@ import com.example.survey.domain.user.dto.LoginResponse;
 import com.example.survey.domain.user.dto.RegisterRequest;
 import com.example.survey.domain.user.dto.RegisterResponse;
 import com.example.survey.domain.user.repository.UserRepository;
+import com.example.survey.global.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public RegisterResponse register(RegisterRequest registerRequest) {
         // RegisterRequest 파싱해서 DB에 저장
@@ -47,11 +49,19 @@ public class UserService {
             return null;
         }
 
+        // JWT 토큰 생성
+        String token = jwtTokenProvider.generateToken(user.getUserId());
+
         // 로그인 성공하면 LoginResponse 반환
         return LoginResponse.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .username(user.getUsername())
+                .token(token)
                 .build();
+    }
+
+    private Boolean isEmailValid(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 }
