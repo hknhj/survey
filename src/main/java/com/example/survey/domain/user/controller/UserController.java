@@ -1,5 +1,7 @@
 package com.example.survey.domain.user.controller;
 
+import com.example.survey.domain.user.dto.LoginRequest;
+import com.example.survey.domain.user.dto.LoginResponse;
 import com.example.survey.domain.user.dto.RegisterRequest;
 import com.example.survey.domain.user.dto.RegisterResponse;
 import com.example.survey.domain.user.service.UserService;
@@ -21,7 +23,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<DefaultResponseDto<RegisterResponse>> register(@RequestBody RegisterRequest registerRequest) {
-        // 서비스 호출
+        // 회원가입 서비스 호출
         RegisterResponse registerResponse = userService.register(registerRequest);
 
         // DefaultResponseDto 생성
@@ -34,6 +36,24 @@ public class UserController {
         // HTTP 201 + 응답 반환
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<DefaultResponseDto<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+        // 로그인 서비스 호출
+        LoginResponse loginResponse = userService.login(loginRequest);
+
+        // DefaultResponseDto 생성
+        DefaultResponseDto<LoginResponse> response = DefaultResponseDto.response(
+                    "SUCCESS",
+                    "로그인에 성공하였습니다 " + loginResponse.getUsername() + "님",
+                    loginResponse
+        );
+
+        // HTTP 200 + 응답 반환
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(response);
     }
 

@@ -1,10 +1,12 @@
 package com.example.survey.domain.user.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class RegisterRequest {
+@Builder
+public class LoginResponse {
+    private Long userId;
     private String email;
-    private String password;
     private String username;
 }

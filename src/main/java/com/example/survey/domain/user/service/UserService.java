@@ -1,6 +1,8 @@
 package com.example.survey.domain.user.service;
 
 import com.example.survey.domain.user.domain.User;
+import com.example.survey.domain.user.dto.LoginRequest;
+import com.example.survey.domain.user.dto.LoginResponse;
 import com.example.survey.domain.user.dto.RegisterRequest;
 import com.example.survey.domain.user.dto.RegisterResponse;
 import com.example.survey.domain.user.repository.UserRepository;
@@ -16,7 +18,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public RegisterResponse register(RegisterRequest registerRequest) {
-
         // RegisterRequest 파싱해서 DB에 저장
         User user = userRepository.save(User.builder()
                 .email(registerRequest.getEmail())
@@ -30,6 +31,27 @@ public class UserService {
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    public LoginResponse login(LoginRequest loginRequest) {
+        // 이메일을 통해 유저를 찾고, 없으면 null 반환
+        User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
+
+        // 이메일이 존재하지 않으면 null 반환
+        if (user == null) {
+            return null;
+        }
+        // 비밀번호가 일치하지 않으면 null 반환
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            return null;
+        }
+
+        // 로그인 성공하면 LoginResponse 반환
+        return LoginResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .username(user.getUsername())
                 .build();
     }
 }
