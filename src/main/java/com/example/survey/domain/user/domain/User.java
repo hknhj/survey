@@ -21,15 +21,19 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long userId;
 
+    // 이메일
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 255)
+    // 비밀번호
+    @Column(name = "password", nullable = false)
     private String password;
 
+    // 유저명
     @Column(name = "username", nullable = false, length = 50)
     private String username;
 
+    // 유저가 생성한 설문조사 리스트
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Survey> surveys = new ArrayList<>();
 

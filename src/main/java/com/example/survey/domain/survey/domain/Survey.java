@@ -1,5 +1,6 @@
 package com.example.survey.domain.survey.domain;
 
+import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.user.domain.User;
 import com.example.survey.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -7,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "survey")
@@ -19,19 +22,29 @@ public class Survey extends BaseTimeEntity {
     @Column(name = "survey_id")
     private Long surveyId;
 
+    // 설문 조사 작성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "title", nullable = false, length = 255)
+    // 설문 조사 제목
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description")
+    // 설문 조사 설명
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "start_date")
+    // 설문 조사 시작일
+    @Column(name = "start_date", columnDefinition = "DATETIME")
     private LocalDate startDate;
 
-    @Column(name = "end_date")
+    // 설문 조사 마감일
+    @Column(name = "end_date", columnDefinition = "DATETIME")
     private LocalDate endDate;
+
+    // 설문에 포함된 질문 리스트
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
+
 }
