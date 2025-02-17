@@ -28,7 +28,6 @@ public class UserController {
 
         // DefaultResponseDto 생성
         DefaultResponseDto<RegisterResponse> response = DefaultResponseDto.response(
-                "SUCCESSS",
                 "회원 가입이 완료되었습니다.",
                 registerResponse
         );
@@ -46,7 +45,6 @@ public class UserController {
 
         // DefaultResponseDto 생성
         DefaultResponseDto<LoginResponse> response = DefaultResponseDto.response(
-                    "SUCCESS",
                     "로그인에 성공하였습니다 " + loginResponse.getUsername() + "님",
                     loginResponse
         );
