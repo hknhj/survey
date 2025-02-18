@@ -5,7 +5,7 @@ import com.example.survey.domain.user.dto.LoginResponse;
 import com.example.survey.domain.user.dto.RegisterRequest;
 import com.example.survey.domain.user.dto.RegisterResponse;
 import com.example.survey.domain.user.service.UserService;
-import com.example.survey.global.DefaultResponseDto;
+import com.example.survey.global.DefaultResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +22,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<DefaultResponseDto<RegisterResponse>> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<DefaultResponse<RegisterResponse>> register(@RequestBody RegisterRequest registerRequest) {
         // 회원가입 서비스 호출
         RegisterResponse registerResponse = userService.register(registerRequest);
 
         // DefaultResponseDto 생성
-        DefaultResponseDto<RegisterResponse> response = DefaultResponseDto.response(
+        DefaultResponse<RegisterResponse> response = DefaultResponse.response(
                 "회원 가입이 완료되었습니다.",
                 registerResponse
         );
@@ -39,12 +39,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<DefaultResponseDto<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<DefaultResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
         // 로그인 서비스 호출
         LoginResponse loginResponse = userService.login(loginRequest);
 
         // DefaultResponseDto 생성
-        DefaultResponseDto<LoginResponse> response = DefaultResponseDto.response(
+        DefaultResponse<LoginResponse> response = DefaultResponse.response(
                     "로그인에 성공하였습니다 " + loginResponse.getUsername() + "님",
                     loginResponse
         );

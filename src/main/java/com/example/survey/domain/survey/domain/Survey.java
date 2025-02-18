@@ -1,6 +1,6 @@
 package com.example.survey.domain.survey.domain;
 
-import com.example.survey.domain.question.domain.Question;
+//import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.user.domain.User;
 import com.example.survey.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -45,8 +45,15 @@ public class Survey extends BaseTimeEntity {
     private LocalDate endDate;
 
     // 설문에 포함된 질문 리스트
-    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Question> questions = new ArrayList<>();
+//    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Question> questions = new ArrayList<>();
+
+    public void updateSurvey(String title, String description, LocalDate startDate, LocalDate endDate) {
+        if (title != null) this.title = title;
+        if (description != null) this.description = description;
+        if (startDate != null) this.startDate = startDate;
+        if (endDate != null) this.endDate = endDate;
+    }
 
     @Builder
     public Survey(User user, String title, String description, LocalDate startDate, LocalDate endDate) {
