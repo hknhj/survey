@@ -20,6 +20,7 @@ public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
 
+    // 설문 조사 생성 서비스
     @Transactional
     public SurveyResponse createSurvey(Long userId, SurveyCreateRequest surveyCreateRequest) {
 
@@ -42,6 +43,7 @@ public class SurveyService {
                 .build();
     }
 
+    // 모든 설문 조사 조회 서비스
     public List<SurveyResponse> getAllSurveys() {
 
         // DB에서 모든 survey 조회
@@ -55,4 +57,22 @@ public class SurveyService {
                 .toList();
     }
 
+    // 자신이 만든 설문 조사 조회 서비스
+    @Transactional
+    public List<SurveyResponse> getMySurveys(Long userId) {
+
+        // 유저 아이디를 이용하여 유저 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+
+        // userId를 토대로 survey 조회
+        List<Survey> mySurveys = surveyRepository.findAllByUser_UserId(userId);
+
+        // Survey List -> SurveyResponse List
+        return mySurveys.stream()
+                .map(survey -> SurveyResponse.builder()
+                        .survey(survey)
+                        .build())
+                .toList();
+    }
 }

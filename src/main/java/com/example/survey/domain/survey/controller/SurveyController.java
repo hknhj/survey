@@ -48,7 +48,7 @@ public class SurveyController {
     @GetMapping
     public ResponseEntity<DefaultResponseDto<List<SurveyResponse>>> getAllSurveys() {
 
-        // service 계층을 사용하여 모든 설문조사 리스트 추출
+        // 모든 설문조사 리스트 추출
         List<SurveyResponse> surveyResponseList = surveyService.getAllSurveys();
 
         DefaultResponseDto<List<SurveyResponse>> response = DefaultResponseDto.response(
@@ -60,11 +60,27 @@ public class SurveyController {
                 .status(HttpStatus.OK)
                 .body(response);
     }
-//
-//    // 자신이 만든 설문조사 조회
-//    @GetMapping("/my")
-//    public ResponseEntity<DefaultResponseDto<List<SurveyResponse>>> getMySurveys() {
-//    }
+
+    // 자신이 만든 설문조사 조회
+    @GetMapping("/my")
+    public ResponseEntity<DefaultResponseDto<List<SurveyResponse>>> getMySurveys(@RequestHeader("Authorization") String authHeader) {
+
+        // JWT 토큰에서 userId 추출 (Bearer 제거)
+        String token = authHeader.substring(7);
+        Long userId = jwtTokenProvider.getUserId(token);
+
+        // 자신이 생성한 설문 조사 리스트 추출
+        List<SurveyResponse> mySurveyList = surveyService.getMySurveys(userId);
+
+        DefaultResponseDto<List<SurveyResponse>> response = DefaultResponseDto.response(
+                "자신이 생성한 설문 조사 조회 성공",
+                mySurveyList
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
 //
 //    // 개별 설문조사 조회
 //    @GetMapping("/{surveyId}")
