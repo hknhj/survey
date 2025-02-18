@@ -7,22 +7,22 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class DefaultResponseDto<T> {
+public class DefaultResponse<T> {
 
     private String responseMessage;
     private T data;
 
-    public DefaultResponseDto(final String responseMessage) {
+    public DefaultResponse(final String responseMessage) {
         this.responseMessage = responseMessage;
         this.data = null;
     }
 
-    public static <T> DefaultResponseDto<T> response(final String responseMessage){
+    public static <T> DefaultResponse<T> response(final String responseMessage){
         return response(responseMessage, null);
     }
 
-    public static <T> DefaultResponseDto<T> response(final String responseMessage, final T data){
-        return DefaultResponseDto.<T>builder()
+    public static <T> DefaultResponse<T> response(final String responseMessage, final T data){
+        return DefaultResponse.<T>builder()
                 .responseMessage(responseMessage)
                 .data(data)
                 .build();

@@ -5,6 +5,8 @@ import com.example.survey.domain.user.dto.LoginRequest;
 import com.example.survey.domain.user.dto.LoginResponse;
 import com.example.survey.domain.user.dto.RegisterRequest;
 import com.example.survey.domain.user.dto.RegisterResponse;
+import com.example.survey.domain.user.exception.LoginFailedException;
+import com.example.survey.domain.user.exception.RegisterFailedException;
 import com.example.survey.domain.user.repository.UserRepository;
 import com.example.survey.global.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +22,9 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public RegisterResponse register(RegisterRequest registerRequest) {
-        // RegisterRequest 파싱해서 DB에 저장
-        User user = userRepository.save(User.builder()
-                .email(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .username(registerRequest.getUsername())
-                .build());
+
+        // 회원가입 validation 확인
+        User user = registerValid(registerRequest);
 
         // 저장된 유저의 정보를 토대로 RegisterResponse 생성 후 반환
         return RegisterResponse.builder()
@@ -37,17 +36,9 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
-        // 이메일을 통해 유저를 찾고, 없으면 null 반환
-        User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
 
-        // 이메일이 존재하지 않으면 null 반환
-        if (user == null) {
-            return null;
-        }
-        // 비밀번호가 일치하지 않으면 null 반환
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return null;
-        }
+        // 이메일, 비밀번호를 통해 validation 확인
+        User user = loginValid(loginRequest);
 
         // JWT 토큰 생성
         String token = jwtTokenProvider.generateToken(user.getUserId());
@@ -61,7 +52,27 @@ public class UserService {
                 .build();
     }
 
-    private Boolean isEmailValid(String email) {
-        return userRepository.findByEmail(email).isPresent();
+    private User registerValid(RegisterRequest registerRequest) {
+
+        // 해당 이메일이 존재하면 회원가입 실패
+        if (userRepository.existsByEmail(registerRequest.getEmail()))
+            throw new RegisterFailedException();
+
+        return User.builder()
+                .email(registerRequest.getEmail())
+                .password(registerRequest.getPassword())
+                .username(registerRequest.getUsername())
+                .build();
+    }
+
+    // 이메일, 비밀번호를 토대로 valid 확인
+    private User loginValid(LoginRequest loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(LoginFailedException::new);
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
+            throw new LoginFailedException();
+
+        return user;
     }
 }

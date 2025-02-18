@@ -3,6 +3,7 @@ package com.example.survey.domain.survey.service;
 import com.example.survey.domain.survey.domain.Survey;
 import com.example.survey.domain.survey.dto.SurveyRequest;
 import com.example.survey.domain.survey.dto.SurveyResponse;
+import com.example.survey.domain.survey.exception.SurveyAuthorizationException;
 import com.example.survey.domain.survey.repository.SurveyRepository;
 import com.example.survey.domain.user.domain.User;
 import com.example.survey.domain.user.repository.UserRepository;
@@ -102,9 +103,8 @@ public class SurveyService {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new RuntimeException("해당 설문조사가 존재하지 않습니다."));
 
-        // 해당 설문 조사를 생성한 유저의 userId와 인자로 넘어온 userId가 일치하지 않으면 RuntimeException
-        if (!survey.getUser().getUserId().equals(user.getUserId()))
-            throw new RuntimeException("해당 설문조사에 대한 권한이 없습니다.");
+        /// userId와 survey의 userId가 다르면 SurveyAuthorizationException
+        validateSurveyOwner(userId, survey);
 
         // 설문조사 업데이트
         survey.updateSurvey(
@@ -131,12 +131,8 @@ public class SurveyService {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new RuntimeException("해당 설문조사가 존재하지 않습니다."));
 
-        log.info("userId: {}", user.getUserId());
-        log.info("surveyId: {}", survey.getUser().getUserId());
-
-        // userId와 surveyId의 userId가 다르면 RuntimeException
-        if(!survey.getUser().getUserId().equals(user.getUserId()))
-            throw new RuntimeException("해당 설문조사에 대한 권한이 없습니다.");
+        // userId와 survey의 userId가 다르면 SurveyAuthorizationException
+        validateSurveyOwner(userId, survey);
 
         // 설문조사 삭제
         surveyRepository.delete(survey);
@@ -144,5 +140,10 @@ public class SurveyService {
         return SurveyResponse.builder()
                 .survey(survey)
                 .build();
+    }
+
+    private void validateSurveyOwner(Long userId, Survey survey) {
+        if (!survey.getUser().getUserId().equals(userId))
+            throw new SurveyAuthorizationException();
     }
 }
