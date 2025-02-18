@@ -48,6 +48,13 @@ public class Survey extends BaseTimeEntity {
 //    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Question> questions = new ArrayList<>();
 
+    public void updateSurvey(String title, String description, LocalDate startDate, LocalDate endDate) {
+        if (title != null) this.title = title;
+        if (description != null) this.description = description;
+        if (startDate != null) this.startDate = startDate;
+        if (endDate != null) this.endDate = endDate;
+    }
+
     @Builder
     public Survey(User user, String title, String description, LocalDate startDate, LocalDate endDate) {
         this.user = user;
