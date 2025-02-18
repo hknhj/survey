@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class SurveyCreateResponse {
+public class SurveyResponse {
     private Long surveyId;
     private Long userId;
     private String title;
@@ -16,7 +16,7 @@ public class SurveyCreateResponse {
     private LocalDate endDate;
 
     @Builder
-    public SurveyCreateResponse(Survey survey) {
+    public SurveyResponse(Survey survey) {
         this.surveyId = survey.getSurveyId();
         this.userId = survey.getUser().getUserId();
         this.title = survey.getTitle();

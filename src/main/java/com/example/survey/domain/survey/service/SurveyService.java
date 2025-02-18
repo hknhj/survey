@@ -2,13 +2,16 @@ package com.example.survey.domain.survey.service;
 
 import com.example.survey.domain.survey.domain.Survey;
 import com.example.survey.domain.survey.dto.SurveyCreateRequest;
-import com.example.survey.domain.survey.dto.SurveyCreateResponse;
+import com.example.survey.domain.survey.dto.SurveyResponse;
 import com.example.survey.domain.survey.repository.SurveyRepository;
 import com.example.survey.domain.user.domain.User;
 import com.example.survey.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +21,7 @@ public class SurveyService {
     private final UserRepository userRepository;
 
     @Transactional
-    public SurveyCreateResponse createSurvey(Long userId, SurveyCreateRequest surveyCreateRequest) {
+    public SurveyResponse createSurvey(Long userId, SurveyCreateRequest surveyCreateRequest) {
 
         // userId를 사용해 User 엔티티 조회
         User user = userRepository.findById(userId)
@@ -34,9 +37,22 @@ public class SurveyService {
                 .build();
 
         // DB에 저장
-        return SurveyCreateResponse.builder()
+        return SurveyResponse.builder()
                 .survey(surveyRepository.save(survey))
                 .build();
+    }
+
+    public List<SurveyResponse> getAllSurveys() {
+
+        // DB에서 모든 survey 조회
+        List<Survey> surveys = surveyRepository.findAll();
+
+        // 스트림 문법을 사용해서 Survey -> SurveyResponse로 변경 후 리턴
+        return surveys.stream()
+                .map(survey -> SurveyResponse.builder()
+                        .survey(survey)
+                        .build())
+                .toList();
     }
 
 }
