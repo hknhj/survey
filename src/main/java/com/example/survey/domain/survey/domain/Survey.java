@@ -4,6 +4,7 @@ import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.user.domain.User;
 import com.example.survey.global.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -47,4 +48,12 @@ public class Survey extends BaseTimeEntity {
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
+    @Builder
+    public Survey(User user, String title, String description, LocalDate startDate, LocalDate endDate) {
+        this.user = user;
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }
