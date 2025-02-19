@@ -1,6 +1,9 @@
 package com.example.survey.domain.survey.service;
 
+import com.example.survey.domain.question.domain.Question;
+import com.example.survey.domain.question.service.QuestionService;
 import com.example.survey.domain.survey.domain.Survey;
+import com.example.survey.domain.survey.dto.SurveyCreateRequest;
 import com.example.survey.domain.survey.dto.SurveyRequest;
 import com.example.survey.domain.survey.dto.SurveyResponse;
 import com.example.survey.domain.survey.exception.SurveyAuthorizationException;
@@ -21,27 +24,38 @@ public class SurveyService {
 
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
+    private final QuestionService questionService;
 
     // 설문 조사 생성 서비스
     @Transactional
-    public SurveyResponse createSurvey(Long userId, SurveyRequest surveyRequest) {
+    public SurveyResponse createSurvey(Long userId, SurveyCreateRequest surveyCreateRequest) {
 
         // userId를 사용해 User 엔티티 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
 
-        // DTO를 토대로 survey 엔티티 생성
+        // Survey 생성
         Survey survey = Survey.builder()
                 .user(user)
-                .title(surveyRequest.getTitle())
-                .description(surveyRequest.getDescription())
-                .startDate(surveyRequest.getStartDate())
-                .endDate(surveyRequest.getEndDate())
+                .title(surveyCreateRequest.getTitle())
+                .description(surveyCreateRequest.getDescription())
+                .startDate(surveyCreateRequest.getStartDate())
+                .endDate(surveyCreateRequest.getEndDate())
                 .build();
+
+        // DTO에 있는 질문들을 Question DB에 저장하고, Survey에 추가
+        if (surveyCreateRequest.getQuestions() != null) {
+            surveyCreateRequest.getQuestions().forEach(questionRequest -> {
+                Question question = questionService.createQuestion(survey, questionRequest);
+                survey.addQuestion(question);
+            });
+        }
+
+        Survey savedSurvey = surveyRepository.save(survey);
 
         // DB에 저장
         return SurveyResponse.builder()
-                .survey(surveyRepository.save(survey))
+                .survey(savedSurvey)
                 .build();
     }
 

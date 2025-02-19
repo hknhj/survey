@@ -14,6 +14,7 @@ public class SurveyResponse {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Integer questionCount;
 
     @Builder
     public SurveyResponse(Survey survey) {
@@ -23,5 +24,6 @@ public class SurveyResponse {
         this.description = survey.getDescription();
         this.startDate = survey.getStartDate();
         this.endDate = survey.getEndDate();
+        this.questionCount = survey.getQuestions().size();
     }
 }
