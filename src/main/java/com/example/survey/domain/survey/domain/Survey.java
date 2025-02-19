@@ -65,7 +65,13 @@ public class Survey extends BaseTimeEntity {
         this.endDate = endDate;
     }
 
+    // 개별 질문 추가 메서드
     public void addQuestion(Question question) {
         this.questions.add(question);
+    }
+
+    // 여러 개의 질문을 한 번에 추가하는 메서드
+    public void addQuestions(List<Question> questions) {
+        questions.forEach(this::addQuestion);
     }
 }
