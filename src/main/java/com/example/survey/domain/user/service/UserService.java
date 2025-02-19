@@ -8,7 +8,7 @@ import com.example.survey.domain.user.dto.RegisterResponse;
 import com.example.survey.domain.user.exception.LoginFailedException;
 import com.example.survey.domain.user.exception.RegisterFailedException;
 import com.example.survey.domain.user.repository.UserRepository;
-import com.example.survey.global.JwtTokenProvider;
+import com.example.survey.domain.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

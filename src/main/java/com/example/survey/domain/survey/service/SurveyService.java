@@ -1,6 +1,9 @@
 package com.example.survey.domain.survey.service;
 
+import com.example.survey.domain.question.domain.Question;
+import com.example.survey.domain.question.service.QuestionService;
 import com.example.survey.domain.survey.domain.Survey;
+import com.example.survey.domain.survey.dto.SurveyCreateRequest;
 import com.example.survey.domain.survey.dto.SurveyRequest;
 import com.example.survey.domain.survey.dto.SurveyResponse;
 import com.example.survey.domain.survey.exception.SurveyAuthorizationException;
@@ -21,28 +24,33 @@ public class SurveyService {
 
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
+    private final QuestionService questionService;
 
     // 설문 조사 생성 서비스
     @Transactional
-    public SurveyResponse createSurvey(Long userId, SurveyRequest surveyRequest) {
+    public SurveyResponse createSurvey(Long userId, SurveyCreateRequest surveyCreateRequest) {
 
         // userId를 사용해 User 엔티티 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
 
-        // DTO를 토대로 survey 엔티티 생성
-        Survey survey = Survey.builder()
-                .user(user)
-                .title(surveyRequest.getTitle())
-                .description(surveyRequest.getDescription())
-                .startDate(surveyRequest.getStartDate())
-                .endDate(surveyRequest.getEndDate())
-                .build();
+        // Survey 엔티티 변환 (SurveyCreateRequest -> Survey)
+        Survey survey = surveyCreateRequest.toEntity(user);
 
-        // DB에 저장
-        return SurveyResponse.builder()
-                .survey(surveyRepository.save(survey))
-                .build();
+        // DTO에 있는 질문들을 Question DB에 저장하고, Survey에 추가
+        if (surveyCreateRequest.getQuestions() != null) {
+            List<Question> questions = surveyCreateRequest.getQuestions().stream()
+                    .map(questionRequest -> questionService.createQuestion(survey, questionRequest))
+                    .toList();
+
+            survey.addQuestions(questions);
+        }
+
+        // Survey 저장
+        Survey savedSurvey = surveyRepository.save(survey);
+
+        // Survey 엔티티 -> SurveyResponse 변환 후 반환
+        return SurveyResponse.from(savedSurvey);
     }
 
     // 모든 설문 조사 조회 서비스
@@ -53,9 +61,7 @@ public class SurveyService {
 
         // 스트림 문법을 사용해서 Survey -> SurveyResponse로 변경 후 리턴
         return surveys.stream()
-                .map(survey -> SurveyResponse.builder()
-                        .survey(survey)
-                        .build())
+                .map(SurveyResponse::from)
                 .toList();
     }
 
@@ -68,13 +74,11 @@ public class SurveyService {
                 .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
 
         // userId를 토대로 survey 조회
-        List<Survey> mySurveys = surveyRepository.findAllByUser_UserId(userId);
+        List<Survey> mySurveys = surveyRepository.findAllByUser_UserId(user.getUserId());
 
         // Survey List -> SurveyResponse List
         return mySurveys.stream()
-                .map(survey -> SurveyResponse.builder()
-                        .survey(survey)
-                        .build())
+                .map(SurveyResponse::from)
                 .toList();
     }
 
@@ -86,9 +90,7 @@ public class SurveyService {
                 .orElseThrow(() -> new RuntimeException("해당 설문조사가 존재하지 않습니다."));
 
         // Survey -> SurveyResponse
-        return SurveyResponse.builder()
-                .survey(survey)
-                .build();
+        return SurveyResponse.from(survey);
     }
 
     // 설문 조사 수정 서비스
@@ -104,7 +106,7 @@ public class SurveyService {
                 .orElseThrow(() -> new RuntimeException("해당 설문조사가 존재하지 않습니다."));
 
         /// userId와 survey의 userId가 다르면 SurveyAuthorizationException
-        validateSurveyOwner(userId, survey);
+        validateSurveyOwner(user.getUserId(), survey);
 
         // 설문조사 업데이트
         survey.updateSurvey(
@@ -114,9 +116,7 @@ public class SurveyService {
                 surveyRequest.getEndDate()
         );
 
-        return SurveyResponse.builder()
-                .survey(survey)
-                .build();
+        return SurveyResponse.from(survey);
     }
 
     // 설문 조사 삭제 서비스
@@ -137,9 +137,7 @@ public class SurveyService {
         // 설문조사 삭제
         surveyRepository.delete(survey);
 
-        return SurveyResponse.builder()
-                .survey(survey)
-                .build();
+        return SurveyResponse.from(survey);
     }
 
     private void validateSurveyOwner(Long userId, Survey survey) {

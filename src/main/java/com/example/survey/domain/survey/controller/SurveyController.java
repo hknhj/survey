@@ -1,10 +1,11 @@
 package com.example.survey.domain.survey.controller;
 
+import com.example.survey.domain.survey.dto.SurveyCreateRequest;
 import com.example.survey.domain.survey.dto.SurveyRequest;
 import com.example.survey.domain.survey.dto.SurveyResponse;
 import com.example.survey.domain.survey.service.SurveyService;
 import com.example.survey.global.DefaultResponse;
-import com.example.survey.global.JwtTokenProvider;
+import com.example.survey.domain.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +25,14 @@ public class SurveyController {
     @PostMapping
     public ResponseEntity<DefaultResponse<SurveyResponse>> createSurvey(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody SurveyRequest surveyRequest) {
+            @RequestBody SurveyCreateRequest surveyCreateRequest) {
 
         // JWT 토큰에서 userId 추출 (Bearer 제거)
         String token = authHeader.substring(7);
         Long userId = jwtTokenProvider.getUserId(token);
 
         // Service 계층으로 userId, DTO 전달
-        SurveyResponse surveyResponse = surveyService.createSurvey(userId, surveyRequest);
+        SurveyResponse surveyResponse = surveyService.createSurvey(userId, surveyCreateRequest);
 
         // DefaultResponseDto 생성
         DefaultResponse<SurveyResponse> response = DefaultResponse.response(
