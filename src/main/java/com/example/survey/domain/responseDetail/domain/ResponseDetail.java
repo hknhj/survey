@@ -1,6 +1,6 @@
 package com.example.survey.domain.responseDetail.domain;
 
-import com.example.survey.domain.option.domain.Option;
+import com.example.survey.domain.option.domain.Choice;
 import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.response.domain.Response;
 import jakarta.persistence.*;
@@ -29,7 +29,7 @@ public class ResponseDetail {
     // 선택형 답변 (nullable)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_id")
-    private Option option;
+    private Choice choice;
 
     // 서술형 답변 (nullable)
     @Column(name = "answer")

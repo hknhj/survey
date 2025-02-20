@@ -30,7 +30,7 @@ public class SurveyResponse {
                 .endDate(survey.getEndDate())
                 .questions(survey.getQuestions().stream()
                         .map(QuestionResponse::from)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .questionCount(survey.getQuestions().size())
                 .build();
     }
