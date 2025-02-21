@@ -4,6 +4,7 @@ import com.example.survey.domain.option.domain.Choice;
 import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.response.domain.Response;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,10 +29,18 @@ public class ResponseDetail {
 
     // 선택형 답변 (nullable)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "option_id")
+    @JoinColumn(name = "choice_id")
     private Choice choice;
 
     // 서술형 답변 (nullable)
     @Column(name = "answer")
     private String answer;
+
+    @Builder
+    public ResponseDetail(Response response, Question question, Choice choice, String answer) {
+        this.response = response;
+        this.question = question;
+        this.choice = choice;
+        this.answer = answer;
+    }
 }

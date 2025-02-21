@@ -46,4 +46,8 @@ public class Response {
         this.responseDetails.add(responseDetail);
     }
 
+    public void addResponseDetails(List<ResponseDetail> responseDetails) {
+        this.responseDetails.addAll(responseDetails);
+    }
+
 }
