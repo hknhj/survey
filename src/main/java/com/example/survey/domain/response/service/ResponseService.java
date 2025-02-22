@@ -46,7 +46,7 @@ public class ResponseService {
         // 응답 파싱
         if (responseRequest.getResponseDetailRequests() != null) {
             List<ResponseDetail> responseDetails = responseRequest.getResponseDetailRequests().stream()
-                    .map(responseDetailCreateReqeust -> responseDetailService.createResponseDetail(response, responseDetailCreateReqeust))
+                    .map(responseDetailCreateRequest -> responseDetailService.createResponseDetail(response, responseDetailCreateRequest))
                     .toList();
 
             response.addResponseDetails(responseDetails);
