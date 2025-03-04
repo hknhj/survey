@@ -1,12 +1,14 @@
 package com.example.survey.domain.question.domain;
 
-//import com.example.survey.domain.answer.domain.Answer;
-//import com.example.survey.domain.option.domain.Option;
+import com.example.survey.domain.option.domain.Choice;
 import com.example.survey.domain.survey.domain.Survey;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "question")
@@ -41,10 +43,10 @@ public class Question {
     @Column(name = "order_number")
     private Integer orderNumber;
 
-//    // 질문에 대한 답변들
-//    // 답변 없거나 / 서술형 / 단일 선택형 / 다중 선택형
-//    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Answer> answers = new ArrayList<>();
+    // 질문에 대한 답변들
+    // 답변 없거나 / 서술형 / 단일 선택형 / 다중 선택형
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Choice> choices = new ArrayList<>();
 
     @Builder
     public Question(Survey survey, String content, QuestionType questionType, Boolean required, Integer orderNumber) {
@@ -55,4 +57,11 @@ public class Question {
         this.orderNumber = orderNumber;
     }
 
+    public void addOption(Choice choice) {
+        this.choices.add(choice);
+    }
+
+    public void addOptions(List<Choice> choices) {
+        this.choices.addAll(choices);
+    }
 }

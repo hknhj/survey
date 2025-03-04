@@ -34,23 +34,20 @@ public class SurveyService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
 
-        // Survey 엔티티 변환 (SurveyCreateRequest -> Survey)
-        Survey survey = surveyCreateRequest.toEntity(user);
+        // Survey 엔티티 변환 (SurveyCreateRequest -> Survey) 및 저장
+        Survey survey = surveyRepository.save(surveyCreateRequest.toEntity(user));
 
-        // DTO에 있는 질문들을 Question DB에 저장하고, Survey에 추가
+        // Question 저장 및 Survey에 추가
         if (surveyCreateRequest.getQuestions() != null) {
             List<Question> questions = surveyCreateRequest.getQuestions().stream()
-                    .map(questionRequest -> questionService.createQuestion(survey, questionRequest))
+                    .map(questionCreateRequest -> questionService.createQuestion(survey, questionCreateRequest))
                     .toList();
 
             survey.addQuestions(questions);
         }
 
-        // Survey 저장
-        Survey savedSurvey = surveyRepository.save(survey);
-
         // Survey 엔티티 -> SurveyResponse 변환 후 반환
-        return SurveyResponse.from(savedSurvey);
+        return SurveyResponse.from(survey);
     }
 
     // 모든 설문 조사 조회 서비스

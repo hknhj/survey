@@ -31,7 +31,7 @@ public class SurveyController {
         String token = authHeader.substring(7);
         Long userId = jwtTokenProvider.getUserId(token);
 
-        // Service 계층으로 userId, DTO 전달
+        // Service를 사용해 설문 생성
         SurveyResponse surveyResponse = surveyService.createSurvey(userId, surveyCreateRequest);
 
         // DefaultResponseDto 생성

@@ -1,9 +1,12 @@
 package com.example.survey.domain.question.dto;
 
+import com.example.survey.domain.option.dto.ChoiceCreateRequest;
 import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.question.domain.QuestionType;
 import com.example.survey.domain.survey.domain.Survey;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class QuestionCreateRequest {
@@ -11,6 +14,7 @@ public class QuestionCreateRequest {
     private String questionType;
     private Boolean required;
     private Integer orderNumber;
+    private List<ChoiceCreateRequest> options;
 
     // DTO -> Question 엔티티 변환
     public Question toEntity(Survey survey) {

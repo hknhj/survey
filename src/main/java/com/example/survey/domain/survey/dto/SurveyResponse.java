@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -30,7 +29,7 @@ public class SurveyResponse {
                 .endDate(survey.getEndDate())
                 .questions(survey.getQuestions().stream()
                         .map(QuestionResponse::from)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .questionCount(survey.getQuestions().size())
                 .build();
     }

@@ -26,7 +26,7 @@ public class Survey extends BaseTimeEntity {
 
     // 설문 조사 작성자
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // 설문 조사 제목
@@ -72,6 +72,6 @@ public class Survey extends BaseTimeEntity {
 
     // 여러 개의 질문을 한 번에 추가하는 메서드
     public void addQuestions(List<Question> questions) {
-        questions.forEach(this::addQuestion);
+        this.questions.addAll(questions);
     }
 }
