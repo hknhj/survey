@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -41,6 +42,7 @@ public class ResponseService {
         Response response = responseRepository.save(Response.builder()
                 .user(user)
                 .survey(survey)
+                .responseDate(LocalDate.now())
                 .build());
 
         // 응답 파싱

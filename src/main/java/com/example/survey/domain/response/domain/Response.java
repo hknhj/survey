@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +37,15 @@ public class Response {
     @OneToMany(mappedBy = "response", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResponseDetail> responseDetails = new ArrayList<>();
 
+    // 응답이 작성된 시간
+    @Column(name = "response_date", nullable = false)
+    private LocalDate responseDate;
+
     @Builder
-    public Response(User user, Survey survey) {
+    public Response(User user, Survey survey, LocalDate responseDate) {
         this.user = user;
         this.survey = survey;
+        this.responseDate = responseDate;
     }
 
     public void addResponseDetail(ResponseDetail responseDetail) {
