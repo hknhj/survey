@@ -2,6 +2,8 @@ package com.example.survey.domain.survey.service;
 
 import com.example.survey.domain.question.domain.Question;
 import com.example.survey.domain.question.service.QuestionService;
+import com.example.survey.domain.response.dto.TopResponderResponse;
+import com.example.survey.domain.response.service.ResponseService;
 import com.example.survey.domain.survey.domain.Survey;
 import com.example.survey.domain.survey.dto.SurveyCreateRequest;
 import com.example.survey.domain.survey.dto.SurveyRequest;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,8 +28,9 @@ public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
     private final QuestionService questionService;
+    private final ResponseService responseService;
 
-    // 설문 조사 생성 서비스
+    // 설문 생성 서비스
     @Transactional
     public SurveyResponse createSurvey(Long userId, SurveyCreateRequest surveyCreateRequest) {
 
@@ -50,7 +54,7 @@ public class SurveyService {
         return SurveyResponse.from(survey);
     }
 
-    // 모든 설문 조사 조회 서비스
+    // 모든 설문 조회 서비스
     public List<SurveyResponse> getAllSurveys() {
 
         // DB에서 모든 survey 조회
@@ -62,8 +66,7 @@ public class SurveyService {
                 .toList();
     }
 
-    // 자신이 만든 설문 조사 조회 서비스
-    @Transactional
+    // 자신이 만든 설문 조회 서비스
     public List<SurveyResponse> getMySurveys(Long userId) {
 
         // 유저 아이디를 이용하여 유저 조회
@@ -79,7 +82,7 @@ public class SurveyService {
                 .toList();
     }
 
-    // 설문 조사 개별 조회 서비스
+    // 설문 개별 조회 서비스
     public SurveyResponse getSurvey(Long surveyId) {
 
         // surveyId를 통하여 Survey 조회
@@ -90,7 +93,7 @@ public class SurveyService {
         return SurveyResponse.from(survey);
     }
 
-    // 설문 조사 수정 서비스
+    // 설문 수정 서비스
     @Transactional
     public SurveyResponse modifySurvey(Long userId, Long surveyId, SurveyRequest surveyRequest) {
 
@@ -116,7 +119,7 @@ public class SurveyService {
         return SurveyResponse.from(survey);
     }
 
-    // 설문 조사 삭제 서비스
+    // 설문 삭제 서비스
     @Transactional
     public SurveyResponse deleteSurvey(Long userId, Long surveyId) {
 
@@ -129,10 +132,43 @@ public class SurveyService {
                 .orElseThrow(() -> new RuntimeException("해당 설문조사가 존재하지 않습니다."));
 
         // userId와 survey의 userId가 다르면 SurveyAuthorizationException
-        validateSurveyOwner(userId, survey);
+        validateSurveyOwner(user.getUserId(), survey);
 
         // 설문조사 삭제
         surveyRepository.delete(survey);
+
+        return SurveyResponse.from(survey);
+    }
+
+    // 설문 할당 서비스
+    public SurveyResponse assignSurvey(Long userId) {
+
+        // userId를 통해 유저 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+
+        // 설문에 응답한 수가 가장 많은 유저 순서로 정렬
+        List<TopResponderResponse> responders = responseService.getTopResponders();
+
+        log.info("responders: {}", responders.toString());
+
+        List<Survey> surveys = new ArrayList<>();
+
+        // 해당 유저가 생성한 설문을 응답이 적은 순으로 정렬
+        responders.forEach(responder -> {
+                    Long responderId = responder.getUserId();
+
+                    // 해당 유저가 만든 설문을 응답 개수 기준으로 정렬하여 조회
+                    List<Survey> surveyListByResponseCount =  surveyRepository.findUserSurveysOrderByResponseCount(responderId);
+                    surveys.addAll(surveyListByResponseCount);
+        });
+
+        if (surveys.isEmpty()) throw new RuntimeException("할당할 설문이 없습니다.");
+
+
+        // 가장 위에 있는 설문을 가져오기
+        Survey survey = surveyRepository.findById(surveys.get(0).getSurveyId())
+                .orElseThrow(() -> new RuntimeException("해당 설문을 찾을 수 없습니다."));
 
         return SurveyResponse.from(survey);
     }

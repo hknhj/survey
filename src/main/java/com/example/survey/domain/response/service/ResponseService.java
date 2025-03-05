@@ -3,6 +3,7 @@ package com.example.survey.domain.response.service;
 import com.example.survey.domain.response.domain.Response;
 import com.example.survey.domain.response.dto.ResponseRequest;
 import com.example.survey.domain.response.dto.ResponseResponse;
+import com.example.survey.domain.response.dto.TopResponderResponse;
 import com.example.survey.domain.response.repository.ResponseRepository;
 import com.example.survey.domain.responseDetail.domain.ResponseDetail;
 import com.example.survey.domain.responseDetail.service.ResponseDetailService;
@@ -26,7 +27,7 @@ public class ResponseService {
     private final SurveyRepository surveyRepository;
     private final ResponseDetailService responseDetailService;
 
-    // 설문조사
+    // 설문 응답 등록
     @Transactional
     public ResponseResponse submitSurveyResponse(Long surveyId, Long userId, ResponseRequest responseRequest) {
 
@@ -55,5 +56,12 @@ public class ResponseService {
         }
 
         return ResponseResponse.from(response);
+    }
+
+    // 설문 응답 횟수가 많은 유저를 내림차순으로 정렬하여 조회
+    public List<TopResponderResponse> getTopResponders() {
+        return responseRepository.findTopUsersByResponseCount().stream()
+                .map(result -> new TopResponderResponse((Long) result[0], (Long) result[1]))
+                .toList();
     }
 }

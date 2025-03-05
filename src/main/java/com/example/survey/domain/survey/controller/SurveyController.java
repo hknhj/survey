@@ -148,4 +148,27 @@ public class SurveyController {
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+    // 설문조사 할당받기
+    @GetMapping("/assign")
+    public ResponseEntity<DefaultResponse<SurveyResponse>> assignSurvey(
+            @RequestHeader("Authorization") String authHeader) {
+
+        // JWT 토큰에서 userId 추출 (Bearer 제거)
+        String token = authHeader.substring(7);
+        Long userId = jwtTokenProvider.getUserId(token);
+
+        // 설문조사 할당받기
+        SurveyResponse surveyResponse = surveyService.assignSurvey(userId);
+
+        // 응답 생성
+        DefaultResponse<SurveyResponse> response = DefaultResponse.response(
+                "설문조사 할당에 성공하였습니다.",
+                surveyResponse
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
 }
